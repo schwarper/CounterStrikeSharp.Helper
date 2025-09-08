@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Title>CounterStrikeSharp.Helper</Title>
+		<Description>A collection of extension methods and utilities for CounterStrikeSharp plugin development.</Description>
+		<Authors>schwarper</Authors>
+		<Copyright>schwarper</Copyright>
+		<RepositoryUrl>https://github.com/schwarper/CounterStrikeSharp.Helper</RepositoryUrl>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+		<IncludeXmlDocumentation>true</IncludeXmlDocumentation>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<OutputPath>BuildOutput\shared\CounterStrikeSharp.Helper\</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CounterStrikeSharp.API" Version="*" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="README.md" />
+	</ItemGroup>
+</Project>
