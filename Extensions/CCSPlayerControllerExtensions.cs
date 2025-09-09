@@ -3,7 +3,6 @@ using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.UserMessages;
-using CounterStrikeSharp.API.Modules.Utils;
 
 namespace CounterStrikeSharp.Helper.Extensions;
 
@@ -42,123 +41,6 @@ public static class CCSPlayerControllerExtensions
     }
 
     /// <summary>
-    /// Gets the player's eye position.
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    /// <returns>A <see cref="Vector"/> representing the player's eye position, or <c>null</c> if the pawn is not valid.</returns>
-    public static Vector? GetEyePosition(this CCSPlayerController player)
-    {
-        return player.Pawn()?.GetEyePosition();
-    }
-
-    /// <summary>
-    /// Checks if the player is currently inside a smoke.
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    /// <returns><c>true</c> if the player is in smoke; otherwise, <c>false</c>.</returns>
-    public static bool IsInSmoke(this CCSPlayerController player)
-    {
-        return player.Pawn()?.IsInSmoke() ?? false;
-    }
-
-    /// <summary>
-    /// Finds and returns a weapon from the player's inventory by its designer name (e.g., "weapon_ak47").
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    /// <param name="designername">The designer name of the weapon to find.</param>
-    /// <returns>The <see cref="CBasePlayerWeapon"/> instance if found; otherwise, <c>null</c>.</returns>
-    public static CBasePlayerWeapon? GetWeaponByDesignername(this CCSPlayerController player, string designername)
-    {
-        return player.Pawn()?.GetWeaponByDesignername(designername);
-    }
-
-    /// <summary>
-    /// Sets the scale of the player's model.
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    /// <param name="value">The scale factor to apply to the model (e.g., 1.0 is normal size).</param>
-    public static void SetModelSize(this CCSPlayerController player, float value)
-    {
-        player.Pawn()?.SetModelSize(value);
-    }
-
-    /// <summary>
-    /// Changes the movement type of the player's pawn (e.g., noclip, fly).
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    /// <param name="moveType">The new <see cref="MoveType_t"/> to apply.</param>
-    public static void ChangeMoveType(this CCSPlayerController player, MoveType_t moveType)
-    {
-        player.Pawn()?.ChangeMoveType(moveType);
-    }
-
-    /// <summary>
-    /// Freezes the player in place, preventing any movement.
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    public static void Freeze(this CCSPlayerController player)
-    {
-        player.Pawn()?.Freeze();
-    }
-
-    /// <summary>
-    /// Unfreezes the player, restoring normal movement.
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    public static void Unfreeze(this CCSPlayerController player)
-    {
-        player.Pawn()?.Unfreeze();
-    }
-
-    /// <summary>
-    /// Buries the player's pawn, typically making it non-solid and placing it under the ground.
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    public static void Bury(this CCSPlayerController player)
-    {
-        player.Pawn()?.Bury();
-    }
-
-    /// <summary>
-    /// Unburies the player's pawn, restoring its normal state.
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    public static void Unbury(this CCSPlayerController player)
-    {
-        player.Pawn()?.Unbury();
-    }
-
-    /// <summary>
-    /// Gets the path of the model file for the player's pawn.
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    /// <returns>The model name as a string, or <c>null</c> if the pawn is not valid.</returns>
-    public static string? GetModelName(this CCSPlayerController player)
-    {
-        return player.Pawn()?.GetModelName();
-    }
-
-    /// <summary>
-    /// Removes a specific weapon from the player's inventory by its designer name.
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    /// <param name="designername">The designer name of the weapon to remove.</param>
-    public static void RemoveWeaponByDesignername(this CCSPlayerController player, string designername)
-    {
-        player.Pawn()?.RemoveWeaponByDesignername(designername);
-    }
-
-    /// <summary>
-    /// Removes weapons from the player's inventory based on their equipment slots.
-    /// </summary>
-    /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
-    /// <param name="slots">A <see cref="HashSet{T}"/> of <see cref="gear_slot_t"/> representing the slots to clear.</param>
-    public static void RemoveWeaponBySlot(this CCSPlayerController player, HashSet<gear_slot_t> slots)
-    {
-        player.Pawn()?.RemoveWeaponBySlot(slots);
-    }
-
-    /// <summary>
     /// Sets the player's in-game money amount.
     /// </summary>
     /// <param name="player">The <see cref="CCSPlayerController"/> instance.</param>
@@ -183,6 +65,7 @@ public static class CCSPlayerControllerExtensions
         if (player.ActionTrackingServices == null)
             return;
 
+        player.Score = kills;
         player.ActionTrackingServices.NumRoundKills = kills;
         Utilities.SetStateChanged(player, "CCSPlayerController_ActionTrackingServices", "m_iNumRoundKills");
         Utilities.SetStateChanged(player, "CCSPlayerController", "m_pActionTrackingServices");

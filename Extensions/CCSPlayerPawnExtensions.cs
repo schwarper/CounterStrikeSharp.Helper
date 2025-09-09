@@ -1,4 +1,5 @@
-﻿using CounterStrikeSharp.API;
+﻿using System.Numerics;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
@@ -140,6 +141,46 @@ public static class CCSPlayerPawnExtensions
     }
 
     /// <summary>
+    /// Push bach player
+    /// </summary>
+    /// <param name="playerPawn">The player pawn instance.</param>
+    /// <remarks>Credits to AquaVadis for the original implementation.</remarks>
+    public static void Bounce(this CCSPlayerPawn playerPawn)
+    {
+        Vector vel = new(playerPawn.AbsVelocity.X, playerPawn.AbsVelocity.Y, playerPawn.AbsVelocity.Z);
+        double speed = Math.Sqrt((vel.X * vel.X) + (vel.Y * vel.Y));
+
+        vel *= -350 / (float)speed;
+        vel.Z = vel.Z <= 0 ? 150 : Math.Min(vel.Z, 150);
+        playerPawn.Teleport(playerPawn.AbsOrigin, playerPawn.EyeAngles, vel);
+    }
+
+    /// <summary>
+    /// Dash forward and up
+    /// </summary>
+    /// <param name="playerPawn">The player pawn instance.</param>
+    /// <param name="power">power of the dash in general</param>
+    /// <param name="moveUp">additional amount to go up during the dash</param>
+    /// <remarks>Credits to AquaVadis for the original implementation.</remarks>
+    public static void Dash(this CCSPlayerPawn playerPawn, int power, int moveUp)
+    {
+        if (playerPawn.AbsOrigin is not { } absOrigin)
+            return;
+
+        Vector _forward = new();
+        Vector _origin = new(absOrigin.X, absOrigin.Y, absOrigin.Z);
+        Vector _viewangles = new(0, playerPawn.EyeAngles.Y, playerPawn.EyeAngles.Z);
+
+        _origin.X += _forward.X * 100;
+        _origin.Y += _forward.Y * 100;
+        NativeAPI.AngleVectors(_viewangles.Handle, _forward.Handle, 0, 0);
+
+        Vector vVector = _forward * power;
+
+        playerPawn.Teleport(null, null, new Vector3(vVector.X, vVector.Y, vVector.Z + moveUp));
+    }
+
+    /// <summary>
     /// Removes a weapon from the player's inventory by its designer name.
     /// </summary>
     /// <param name="playerPawn">The player pawn instance.</param>
@@ -152,6 +193,38 @@ public static class CCSPlayerPawnExtensions
         List<CBasePlayerWeapon?> toRemove = [.. myWeapons
             .Select(w => w.Value)
             .Where(w => w?.IsValid is true && w.DesignerName == designername)];
+
+        playerPawn.RemoveWeaponsInternal(toRemove);
+    }
+
+    /// <summary>
+    /// Removes weapons from the player's inventory based on their equipment slot.
+    /// </summary>
+    /// <param name="playerPawn">The player pawn instance.</param>
+    /// <param name="slot">A <see cref="gear_slot_t"/> indicating which slot to clear.</param>
+    public static void RemoveWeaponBySlot(this CCSPlayerPawn playerPawn, gear_slot_t slot)
+    {
+        if (playerPawn.WeaponServices?.MyWeapons is not { } myWeapons || myWeapons.Count == 0)
+            return;
+
+        HashSet<gear_slot_t> existedSlots = [.. myWeapons
+            .Select(w => w.Value?.As<CCSWeaponBase>().VData?.GearSlot)
+            .OfType<gear_slot_t>()];
+
+        if (existedSlots.Count == 0)
+            return;
+
+        if (existedSlots.Count == 1 && existedSlots.Single() == slot)
+        {
+            playerPawn.ItemServices?.As<CCSPlayer_ItemServices>().RemoveWeapons();
+            return;
+        }
+
+        List<CBasePlayerWeapon?> toRemove = [.. myWeapons
+            .Select(w => w.Value)
+            .Where(w => w?.IsValid is true &&
+                         w.As<CCSWeaponBase>().VData?.GearSlot is gear_slot_t sl &&
+                         sl == slot)];
 
         playerPawn.RemoveWeaponsInternal(toRemove);
     }

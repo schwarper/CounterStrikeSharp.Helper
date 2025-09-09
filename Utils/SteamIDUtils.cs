@@ -41,7 +41,7 @@ public static class SteamIDUtils
     /// <param name="steamID">The 64-bit SteamID of the player.</param>
     /// <remarks>Credits to deana for the original implementation.</remarks>
     /// <returns>A <see cref="Task{TResult}"/> that represents the asynchronous operation. The task's result is the player's name as a string, or the SteamID as a string if the name could not be retrieved.</returns>
-    public static async Task<string> GetPlayerNameFromSteamID(ulong steamID)
+    public static async Task<string> GetPlayerNameFromSteamIDAsync(ulong steamID)
     {
         try
         {
