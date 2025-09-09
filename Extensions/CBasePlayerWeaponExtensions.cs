@@ -10,21 +10,21 @@ namespace CounterStrikeSharp.Helper.Extensions;
 public static class CBasePlayerWeaponExtensions
 {
     /// <summary>
-    /// Retrieves the designer name of the specified weapon from its weapon data.
+    /// Gets the weapon's designer name (e.g., "weapon_ak47").
     /// </summary>
-    /// <param name="weapon">The weapon instance to get the name from.</param>
-    /// <returns>The name of the weapon as a string, or <c>null</c> if the weapon data is not available.</returns>
+    /// <param name="weapon">The <see cref="CBasePlayerWeapon"/> instance.</param>
+    /// <returns>The designer name of the weapon as a string, or <c>null</c> if it cannot be retrieved.</returns>
     public static string? GetWeaponName(this CBasePlayerWeapon weapon)
     {
         return weapon.GetVData<CCSWeaponBaseVData>()?.Name;
     }
 
     /// <summary>
-    /// Sets the primary clip and/or reserve ammunition for the specified weapon.
+    /// Sets the ammo for a weapon's primary clip and/or reserve.
     /// </summary>
-    /// <param name="weapon">The weapon instance to modify.</param>
-    /// <param name="clip">The amount of ammunition to set in the primary clip. If set to -1, the current clip ammo will not be changed.</param>
-    /// <param name="reserve">The amount of ammunition to set in the reserve. If set to -1, the current reserve ammo will not be changed.</param>
+    /// <param name="weapon">The <see cref="CBasePlayerWeapon"/> instance to modify.</param>
+    /// <param name="clip">The amount of ammo for the primary clip. Use -1 to ignore.</param>
+    /// <param name="reserve">The amount of ammo for the reserve. Use -1 to ignore.</param>
     public static void SetWeaponAmmo(this CBasePlayerWeapon weapon, int clip = -1, int reserve = -1)
     {
         if (weapon.As<CCSWeaponBase>().GetVData<CCSWeaponBaseVData>() is not { } vdata)
@@ -46,18 +46,15 @@ public static class CBasePlayerWeaponExtensions
     }
 
     /// <summary>
-    /// Sets the visibility of a weapon entity.
+    /// Changes the visibility of the weapon entity.
     /// </summary>
-    /// <param name="weapon">The weapon entity.</param>
-    /// <param name="value">
-    /// True to make the weapon visible (opaque),
-    /// false to make it invisible (fully transparent).
-    /// </param>
+    /// <param name="weapon">The <see cref="CBasePlayerWeapon"/> instance.</param>
+    /// <param name="visible">Set to <c>true</c> to make the weapon visible (opaque), or <c>false</c> to make it invisible (transparent).</param>
     /// <remarks>Credits to LeviN for the original implementation.</remarks>
-    public static void SetVisible(this CBasePlayerWeapon weapon, bool value)
+    public static void SetVisible(this CBasePlayerWeapon weapon, bool visible)
     {
         Color color = Color.FromArgb(
-            value ? 255 : 0,
+            visible ? 255 : 0,
             weapon.Render.R,
             weapon.Render.G,
             weapon.Render.B
@@ -80,6 +77,9 @@ public static class CBasePlayerWeaponExtensions
     /// <remarks>Credits to daffyy for the original implementation.</remarks>
     public static CCSPlayerController? GetOwner(this CBasePlayerWeapon weapon)
     {
+        if (weapon.OwnerEntity.Value is null)
+            return null;
+
         CBasePlayerPawn pawn = new(NativeAPI.GetEntityFromIndex((int)weapon.OwnerEntity.Index));
         return Utilities.GetPlayerFromIndex((int)pawn.Controller.Index);
     }

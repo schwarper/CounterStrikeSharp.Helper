@@ -1,7 +1,9 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory;
+using CounterStrikeSharp.API.Modules.Utils;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace CounterStrikeSharp.Helper.Extensions;
@@ -11,13 +13,13 @@ namespace CounterStrikeSharp.Helper.Extensions;
 /// </summary>
 public static class CCSPlayerPawnExtensions
 {
-    private const float _smokeRadius = 180.0f;
+    private const float SmokeRadius = 180.0f;
 
     /// <summary>
     /// Gets the player's eye position.
     /// </summary>
-    /// <param name="playerPawn">The player pawn instance.</param>
-    /// <returns>A <see cref="Vector"/> representing the eye position, or <c>null</c> if the pawn's origin is not valid.</returns>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <returns>A <see cref="Vector"/> representing the eye position, or <c>null</c> if the pawn's origin is invalid.</returns>
     public static Vector? GetEyePosition(this CCSPlayerPawn playerPawn)
     {
         return playerPawn.AbsOrigin is not { } absOrigin
@@ -28,7 +30,7 @@ public static class CCSPlayerPawnExtensions
     /// <summary>
     /// Checks if the player is currently inside a smoke.
     /// </summary>
-    /// <param name="playerPawn">The player pawn instance.</param>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
     /// <returns><c>true</c> if the player is in smoke; otherwise, <c>false</c>.</returns>
     /// <remarks>Credits to Gold KingZ for the original implementation.</remarks>
     public static bool IsInSmoke(this CCSPlayerPawn playerPawn)
@@ -36,50 +38,62 @@ public static class CCSPlayerPawnExtensions
         if (playerPawn.AbsOrigin is not { } absOrigin)
             return false;
 
-        IEnumerable<CSmokeGrenadeProjectile> entities = Utilities.FindAllEntitiesByDesignerName<CSmokeGrenadeProjectile>("smokegrenade_projectile");
-        foreach (CSmokeGrenadeProjectile entity in entities)
+        var smokeProjectiles = Utilities.FindAllEntitiesByDesignerName<CSmokeGrenadeProjectile>("smokegrenade_projectile");
+        foreach (var smoke in smokeProjectiles)
         {
-            if (!entity.DidSmokeEffect)
-                continue;
-
-            float dist = (absOrigin - entity.SmokeDetonationPos).Length();
-            if (dist <= _smokeRadius)
+            if (smoke.DidSmokeEffect && (absOrigin - smoke.SmokeDetonationPos).Length() <= SmokeRadius)
                 return true;
         }
-
         return false;
     }
 
     /// <summary>
-    /// Finds a weapon in the player's inventory by its designer name (e.g., "weapon_ak47").
+    /// Finds a weapon in the player's inventory by its designer name.
     /// </summary>
-    /// <param name="playerPawn">The player pawn instance.</param>
-    /// <param name="designername">The designer name of the weapon to find.</param>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="designerName">The designer name of the weapon to find (e.g., "weapon_ak47").</param>
     /// <returns>The <see cref="CBasePlayerWeapon"/> instance if found; otherwise, <c>null</c>.</returns>
-    public static CBasePlayerWeapon? GetWeaponByDesignername(this CCSPlayerPawn playerPawn, string designername)
+    public static CBasePlayerWeapon? GetWeaponByName(this CCSPlayerPawn playerPawn, string designerName)
     {
         return playerPawn.WeaponServices?.MyWeapons
             .Select(w => w.Value)
-            .FirstOrDefault(w => w?.DesignerName == designername);
+            .FirstOrDefault(w => w?.DesignerName == designerName);
+    }
+
+    /// <summary>
+    /// Checks if the player has a weapon in the specified equipment slot.
+    /// </summary>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="slot">The equipment slot (<see cref="gear_slot_t"/>) to check.</param>
+    /// <returns><c>true</c> if the player has a weapon in the given slot; otherwise, <c>false</c>.</returns>
+    /// <remarks>Credits to K4ryuu for the original implementation.</remarks>
+    public static bool HasWeaponInSlot(this CCSPlayerPawn playerPawn, gear_slot_t slot)
+    {
+        return playerPawn.WeaponServices?.MyWeapons
+            .Select(w => w.Value?.As<CCSWeaponBase>())
+            .Any(w => w?.VData?.GearSlot == slot) ?? false;
     }
 
     /// <summary>
     /// Sets the scale of the player's model.
     /// </summary>
-    /// <param name="playerPawn">The player pawn instance.</param>
-    /// <param name="value">The scale factor to apply to the model (e.g., 1.0 is normal size).</param>
-    public static void SetModelSize(this CCSPlayerPawn playerPawn, float value)
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="scale">The scale factor to apply (e.g., 1.0 is normal size, 2.0 is double size).</param>
+    public static void SetModelScale(this CCSPlayerPawn playerPawn, float scale)
     {
-        playerPawn.CBodyComponent!.SceneNode!.Scale = value;
-        Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
+        if (playerPawn.CBodyComponent?.SceneNode is { } sceneNode)
+        {
+            sceneNode.Scale = scale;
+            Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
+        }
     }
 
     /// <summary>
     /// Changes the player's movement type (e.g., walk, noclip, fly).
     /// </summary>
-    /// <param name="playerPawn">The player pawn instance.</param>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
     /// <param name="moveType">The <see cref="MoveType_t"/> to apply.</param>
-    public static void ChangeMoveType(this CCSPlayerPawn playerPawn, MoveType_t moveType)
+    public static void SetMoveType(this CCSPlayerPawn playerPawn, MoveType_t moveType)
     {
         playerPawn.MoveType = moveType;
         Schema.GetRef<MoveType_t>(playerPawn.Handle, "CBaseEntity", "m_nActualMoveType") = moveType;
@@ -87,21 +101,21 @@ public static class CCSPlayerPawnExtensions
     }
 
     /// <summary>
-    /// Freezes the player pawn, preventing all movement.
+    /// Freezes the player, preventing all movement.
     /// </summary>
-    /// <param name="playerPawn">The player pawn instance.</param>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
     public static void Freeze(this CCSPlayerPawn playerPawn)
     {
-        playerPawn.ChangeMoveType(MoveType_t.MOVETYPE_OBSOLETE);
+        playerPawn.SetMoveType(MoveType_t.MOVETYPE_OBSOLETE);
     }
 
     /// <summary>
     /// Unfreezes the player, restoring normal movement.
     /// </summary>
-    /// <param name="playerPawn">The player pawn instance.</param>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
     public static void Unfreeze(this CCSPlayerPawn playerPawn)
     {
-        playerPawn.ChangeMoveType(MoveType_t.MOVETYPE_WALK);
+        playerPawn.SetMoveType(MoveType_t.MOVETYPE_WALK);
     }
 
     /// <summary>
@@ -141,14 +155,14 @@ public static class CCSPlayerPawnExtensions
     }
 
     /// <summary>
-    /// Push bach player
+    /// Pushes the player back with a bounce effect.
     /// </summary>
-    /// <param name="playerPawn">The player pawn instance.</param>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
     /// <remarks>Credits to AquaVadis for the original implementation.</remarks>
     public static void Bounce(this CCSPlayerPawn playerPawn)
     {
-        Vector vel = new(playerPawn.AbsVelocity.X, playerPawn.AbsVelocity.Y, playerPawn.AbsVelocity.Z);
-        double speed = Math.Sqrt((vel.X * vel.X) + (vel.Y * vel.Y));
+        var vel = new Vector(playerPawn.AbsVelocity.X, playerPawn.AbsVelocity.Y, playerPawn.AbsVelocity.Z);
+        var speed = Math.Sqrt(vel.X * vel.X + vel.Y * vel.Y);
 
         vel *= -350 / (float)speed;
         vel.Z = vel.Z <= 0 ? 150 : Math.Min(vel.Z, 150);
@@ -156,13 +170,13 @@ public static class CCSPlayerPawnExtensions
     }
 
     /// <summary>
-    /// Dash forward and up
+    /// Dashes the player forward based on their view angle.
     /// </summary>
-    /// <param name="playerPawn">The player pawn instance.</param>
-    /// <param name="power">power of the dash in general</param>
-    /// <param name="moveUp">additional amount to go up during the dash</param>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="power">The forward power of the dash.</param>
+    /// <param name="verticalBoost">Additional vertical velocity to apply.</param>
     /// <remarks>Credits to AquaVadis for the original implementation.</remarks>
-    public static void Dash(this CCSPlayerPawn playerPawn, int power, int moveUp)
+    public static void Dash(this CCSPlayerPawn playerPawn, int power, int verticalBoost)
     {
         if (playerPawn.AbsOrigin is not { } absOrigin)
             return;
@@ -177,7 +191,107 @@ public static class CCSPlayerPawnExtensions
 
         Vector vVector = _forward * power;
 
-        playerPawn.Teleport(null, null, new Vector3(vVector.X, vVector.Y, vVector.Z + moveUp));
+        playerPawn.Teleport(null, null, new Vector3(vVector.X, vVector.Y, vVector.Z + verticalBoost));
+    }
+
+    /// <summary>
+    /// Sets the player's health.
+    /// </summary>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="health">The amount of health to set.</param>
+    /// <param name="allowOverflow">If true, the player's max health will be increased to match the new health value if it exceeds the current max.</param>
+    public static void SetHealth(this CCSPlayerPawn playerPawn, int health, bool allowOverflow = true)
+    {
+        if (allowOverflow && health > playerPawn.MaxHealth)
+        {
+            playerPawn.SetMaxHealth(health);
+        }
+
+        playerPawn.Health = health;
+        Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
+    }
+
+    /// <summary>
+    /// Sets the player's maximum health.
+    /// </summary>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="maxHealth">The maximum health value to set.</param>
+    public static void SetMaxHealth(this CCSPlayerPawn playerPawn, int maxHealth)
+    {
+        playerPawn.MaxHealth = maxHealth;
+        Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iMaxHealth");
+    }
+
+    /// <summary>
+    /// Sets the player's armor and optionally provides a helmet or heavy armor.
+    /// </summary>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="armor">The amount of armor to set.</param>
+    /// <param name="helmet">If true, provides the player with a helmet.</param>
+    public static void SetArmor(this CCSPlayerPawn playerPawn, int armor, bool helmet = false)
+    {
+        playerPawn.ArmorValue = armor;
+        Utilities.SetStateChanged(playerPawn, "CCSPlayerPawnBase", "m_ArmorValue");
+
+        if (helmet && playerPawn.ItemServices?.Handle is { } handle)
+        {
+            new CCSPlayer_ItemServices(handle).HasHelmet = true;
+        }
+    }
+
+    /// <summary>
+    /// Sets the player's movement speed modifier.
+    /// </summary>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="modifier">The speed modifier to apply (1.0 is normal speed).</param>
+    public static void SetSpeed(this CCSPlayerPawn playerPawn, float modifier)
+    {
+        playerPawn.VelocityModifier = modifier;
+    }
+
+    /// <summary>
+    /// Gets the player's current velocity modifier.
+    /// </summary>
+    /// <param name="playerPawn">The player pawn instance.</param>
+    /// <returns>The current speed modifier as a float.</returns>
+    public static float GetSpeed(this CCSPlayerPawn playerPawn)
+    {
+        return playerPawn.VelocityModifier;
+    }
+
+    /// <summary>
+    /// Sets the player's gravity scale.
+    /// </summary>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="scale">The gravity scale to apply (1.0 is normal gravity).</param>
+    public static void SetGravity(this CCSPlayerPawn playerPawn, float scale)
+    {
+        playerPawn.GravityScale = scale;
+    }
+
+    /// <summary>
+    /// Finds a weapon by its designer name and forces the player to drop it.
+    /// </summary>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="designername">The designer name of the weapon to drop (e.g., "weapon_ak47").</param>
+    /// <remarks>This method works by temporarily making the target weapon the active weapon before dropping it.</remarks>
+    public static void DropWeaponByDesignername(this CCSPlayerPawn playerPawn, string designername)
+    {
+        if (playerPawn.WeaponServices is not { } weaponServices)
+            return;
+
+        var weaponRaw = weaponServices.MyWeapons
+            .FirstOrDefault(h => h.Value?.DesignerName == designername);
+
+        if (weaponRaw == null)
+            return;
+
+        weaponServices.ActiveWeapon.Raw = weaponRaw;
+
+        if (weaponServices.ActiveWeapon.Value is null)
+            return;
+
+        playerPawn.ItemServices?.As<CCSPlayer_ItemServices>().DropActivePlayerWeapon(weaponServices.ActiveWeapon.Value);
     }
 
     /// <summary>
