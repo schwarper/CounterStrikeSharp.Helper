@@ -1,6 +1,9 @@
 ﻿using System.Runtime.InteropServices;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Memory;
+using CounterStrikeSharp.API.Modules.Utils;
 
 namespace CounterStrikeSharp.Helper.Utils;
 
@@ -45,6 +48,19 @@ public static class ServerUtils
     public static int GetServerPort()
     {
         return _port;
+    }
+
+    /// <summary>
+    /// Prints a text message to all players at the specified HUD destination.
+    /// </summary>
+    /// <param name="hudDestination">
+    /// The area of the HUD where the message should appear, such as
+    /// <see cref="HudDestination.Chat"/>, <see cref="HudDestination.Center"/>, or <see cref="HudDestination.Alert"/>.
+    /// </param>
+    /// <param name="message">The text message to display.</param>
+    public static void PrintToAll(HudDestination hudDestination, string message)
+    {
+        VirtualFunctions.ClientPrintAll(hudDestination, message, 0, 0, 0, 0);
     }
 
     private static void EnsureDelegateInitialized()

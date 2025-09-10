@@ -2,6 +2,7 @@
 using System.Numerics;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
@@ -153,6 +154,23 @@ public static class CCSPlayerPawnExtensions
     {
         return playerPawn.CBodyComponent?.SceneNode?.GetSkeletonInstance().ModelState.ModelName;
     }
+
+    /// <summary>
+    /// Gets if player is stuck or not.
+    /// </summary>
+    /// <param name="playerPawn">The player pawn instance.</param>
+    /// <returns>
+    /// <c>true</c> if the pawn is flagged as stuck by the movement services; otherwise, <c>false</c>.
+    /// </returns>
+    /// <remarks>Credits to xstage for the original implementation.</remarks>
+    public static bool IsStuck(this CCSPlayerPawn playerPawn)
+    {
+        if (playerPawn.MovementServices?.As<CCSPlayer_MovementServices>() is not { } movementServices)
+            return false;
+
+        return !movementServices.InStuckTest && movementServices.StuckLast > 0;
+    }
+
 
     /// <summary>
     /// Pushes the player back with a bounce effect.
