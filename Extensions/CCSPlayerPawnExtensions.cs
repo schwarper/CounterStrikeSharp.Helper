@@ -1,8 +1,6 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
@@ -39,8 +37,8 @@ public static class CCSPlayerPawnExtensions
         if (playerPawn.AbsOrigin is not { } absOrigin)
             return false;
 
-        var smokeProjectiles = Utilities.FindAllEntitiesByDesignerName<CSmokeGrenadeProjectile>("smokegrenade_projectile");
-        foreach (var smoke in smokeProjectiles)
+        IEnumerable<CSmokeGrenadeProjectile> smokeProjectiles = Utilities.FindAllEntitiesByDesignerName<CSmokeGrenadeProjectile>("smokegrenade_projectile");
+        foreach (CSmokeGrenadeProjectile smoke in smokeProjectiles)
         {
             if (smoke.DidSmokeEffect && (absOrigin - smoke.SmokeDetonationPos).Length() <= SmokeRadius)
                 return true;
@@ -165,10 +163,9 @@ public static class CCSPlayerPawnExtensions
     /// <remarks>Credits to xstage for the original implementation.</remarks>
     public static bool IsStuck(this CCSPlayerPawn playerPawn)
     {
-        if (playerPawn.MovementServices?.As<CCSPlayer_MovementServices>() is not { } movementServices)
-            return false;
-
-        return !movementServices.InStuckTest && movementServices.StuckLast > 0;
+        return playerPawn.MovementServices?.As<CCSPlayer_MovementServices>() is not { } movementServices
+            ? false
+            : !movementServices.InStuckTest && movementServices.StuckLast > 0;
     }
 
 
@@ -179,8 +176,8 @@ public static class CCSPlayerPawnExtensions
     /// <remarks>Credits to AquaVadis for the original implementation.</remarks>
     public static void Bounce(this CCSPlayerPawn playerPawn)
     {
-        var vel = new Vector(playerPawn.AbsVelocity.X, playerPawn.AbsVelocity.Y, playerPawn.AbsVelocity.Z);
-        var speed = Math.Sqrt(vel.X * vel.X + vel.Y * vel.Y);
+        Vector vel = new(playerPawn.AbsVelocity.X, playerPawn.AbsVelocity.Y, playerPawn.AbsVelocity.Z);
+        double speed = Math.Sqrt((vel.X * vel.X) + (vel.Y * vel.Y));
 
         vel *= -350 / (float)speed;
         vel.Z = vel.Z <= 0 ? 150 : Math.Min(vel.Z, 150);
@@ -298,7 +295,7 @@ public static class CCSPlayerPawnExtensions
         if (playerPawn.WeaponServices is not { } weaponServices)
             return;
 
-        var weaponRaw = weaponServices.MyWeapons
+        CHandle<CBasePlayerWeapon>? weaponRaw = weaponServices.MyWeapons
             .FirstOrDefault(h => h.Value?.DesignerName == designername);
 
         if (weaponRaw == null)

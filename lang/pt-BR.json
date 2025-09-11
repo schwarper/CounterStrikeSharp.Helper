@@ -1,0 +1,19 @@
+{
+    "all": "todos os jogadores",
+    "bots": "bots",
+    "humans": "humanos",
+    "alive": "jogadores vivos",
+    "dead": "jogadores mortos",
+    "notme": "todos os jogadores exceto você",
+    "ct": "jogadores CT",
+    "t": "jogadores T",
+    "spec": "espectadores",
+
+    "No matching client": "{white}Nenhum cliente correspondente foi encontrado.",
+    "No matching clients": "{white}Nenhum cliente correspondente foi encontrado.",
+    "Target must be alive": "{white}Este comando só pode ser usado em jogadores vivos.",
+    "Target must be dead": "{white}Este comando só pode ser usado em jogadores mortos.",
+    "Unable to target": "{white}Você não pode direcionar este jogador.",
+    "Cannot target bot": "{white}Não é possível executar este comando em um bot.",
+    "More than one client matched": "{white}Mais de um cliente correspondeu ao padrão fornecido."
+}

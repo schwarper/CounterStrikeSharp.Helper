@@ -1,0 +1,19 @@
+{
+    "all": "vsi igralci",
+    "bots": "boti",
+    "humans": "ljudje",
+    "alive": "živi igralci",
+    "dead": "mrtvi igralci",
+    "notme": "vsi igralci razen sebe",
+    "ct": "CT igralci",
+    "t": "T igralci",
+    "spec": "gledalci",
+
+    "No matching client": "{white}Ni bil najden noben ustrezen klient.",
+    "No matching clients": "{white}Ni bilo najdenih ustreznih klientov.",
+    "Target must be alive": "{white}Ta ukaz je mogoče uporabiti samo za žive igralce.",
+    "Target must be dead": "{white}Ta ukaz je mogoče uporabiti samo za mrtve igralce.",
+    "Unable to target": "{white}Ne morete ciljati tega igralca.",
+    "Cannot target bot": "{white}Ni mogoče izvesti tega ukaza na botu.",
+    "More than one client matched": "{white}Več kot en klient ustreza danemu vzorcu."
+}

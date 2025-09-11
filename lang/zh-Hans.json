@@ -1,0 +1,19 @@
+{
+    "all": "所有玩家",
+    "bots": "机器人",
+    "humans": "人类",
+    "alive": "存活玩家",
+    "dead": "死亡玩家",
+    "notme": "除自己以外的所有玩家",
+    "ct": "CT 玩家",
+    "t": "T 玩家",
+    "spec": "观察者玩家",
+
+    "No matching client": "{white}未找到匹配的客户端。",
+    "No matching clients": "{white}未找到匹配的多个客户端。",
+    "Target must be alive": "{white}此命令只能用于存活玩家。",
+    "Target must be dead": "{white}此命令只能用于死亡玩家。",
+    "Unable to target": "{white}无法瞄准此玩家。",
+    "Cannot target bot": "{white}无法对机器人执行此命令。",
+    "More than one client matched": "{white}有多个客户端与给定模式匹配。"
+}

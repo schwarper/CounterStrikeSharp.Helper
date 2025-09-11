@@ -1,0 +1,19 @@
+{
+    "all": "toți jucătorii",
+    "bots": "boti",
+    "humans": "oameni",
+    "alive": "jucători în viață",
+    "dead": "jucători morți",
+    "notme": "toți jucătorii, în afară de tine",
+    "ct": "jucători CT",
+    "t": "jucători T",
+    "spec": "jucători spectatori",
+
+    "No matching client": "{white}Nu a fost găsit niciun client potrivit.",
+    "No matching clients": "{white}Nu au fost găsiți clienți potriviți.",
+    "Target must be alive": "{white}Această comandă poate fi folosită numai pe jucători în viață.",
+    "Target must be dead": "{white}Această comandă poate fi folosită numai pe jucători morți.",
+    "Unable to target": "{white}Nu poți viza acest jucător.",
+    "Cannot target bot": "{white}Nu se poate executa această comandă pe un bot.",
+    "More than one client matched": "{white}Mai mult de un client corespunde șablonului dat."
+}
