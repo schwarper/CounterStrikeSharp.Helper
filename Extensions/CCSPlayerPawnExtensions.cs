@@ -275,6 +275,33 @@ public static class CCSPlayerPawnExtensions
     }
 
     /// <summary>
+    /// Determines whether the specified player is looking at the target player within a given angular threshold.
+    /// </summary>
+    /// <param name="playerPawn">The player pawn instance.</param>
+    /// <param name="targetPawn">The target pawn instance.</param>
+    /// <param name="angleThreshold">
+    /// The maximum allowed angle (in degrees) between the player's view direction and the direction to the target.
+    /// Defaults to 50 degrees.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the target player lies within the viewing cone defined by 
+    /// <paramref name="angleThreshold"/>; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsLookingAtPlayer(this CCSPlayerPawn playerPawn, CCSPlayerPawn targetPawn, float angleThreshold = 50f)
+    {
+        if (playerPawn.AbsOrigin is not { } playerPawnAbsOrigin || targetPawn.AbsOrigin is not { } targetPawnAbsOrigin)
+            return false;
+
+        Vector forward = playerPawn.EyeAngles.AngleToForward();
+        Vector directionToTarget = (targetPawnAbsOrigin - playerPawnAbsOrigin).Normalize();
+
+        float dot = forward.Dot(directionToTarget);
+        float angleBetween = MathF.Acos(dot) * (180f / MathF.PI);
+
+        return angleBetween <= angleThreshold;
+    }
+
+    /// <summary>
     /// Sets the player's gravity scale.
     /// </summary>
     /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>

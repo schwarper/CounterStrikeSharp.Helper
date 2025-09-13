@@ -1,5 +1,6 @@
 ﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
 
 namespace CounterStrikeSharp.Helper.Extensions;
 
@@ -8,6 +9,15 @@ namespace CounterStrikeSharp.Helper.Extensions;
 /// </summary>
 public static class GameRulesExtensions
 {
+    private static readonly ConVar mp_halftime;
+    private static readonly ConVar mp_maxrounds;
+
+    static GameRulesExtensions()
+    {
+        mp_halftime = ConVar.Find("mp_halftime")!;
+        mp_maxrounds = ConVar.Find("mp_maxrounds")!;
+    }
+
     /// <summary>
     /// Extends the current round time by the specified number of minutes.
     /// </summary>
@@ -33,4 +43,23 @@ public static class GameRulesExtensions
     {
         return gameRules.RoundStartTime + gameRules.RoundTime - Server.CurrentTime;
     }
+
+    /// <summary>
+    /// Determines whether the current round is a pistol round.
+    /// </summary>
+    /// <param name="gameRules">The <see cref="CCSGameRules"/> instance.</param>
+    /// <returns>
+    /// <see langword="true"/> if the current round is a pistol round;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsPistolRound(this CCSGameRules gameRules)
+    {
+        bool isHalftime = mp_halftime.GetPrimitiveValue<bool>();
+        int maxRounds = mp_maxrounds.GetPrimitiveValue<int>();
+
+        return gameRules.TotalRoundsPlayed == 0 ||
+               (isHalftime && maxRounds / 2 == gameRules.TotalRoundsPlayed) ||
+               gameRules.GameRestart;
+    }
+
 }
