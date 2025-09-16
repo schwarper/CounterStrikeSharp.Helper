@@ -32,4 +32,11 @@
 	<ItemGroup>
 		<None Update="lang\**\*.*" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
+
+	<Target Name="Copy Gamedata File" AfterTargets="Build">
+		<ItemGroup>
+			<FilesToCopy Include="CounterStrikeSharp.Helper.gamedata.json" />
+		</ItemGroup>
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="BuildOutput\gamedata\" />
+	</Target>
 </Project>
