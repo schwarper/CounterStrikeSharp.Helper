@@ -312,11 +312,52 @@ public static class CCSPlayerPawnExtensions
     }
 
     /// <summary>
+    /// Sets the player's body group.
+    /// </summary>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="bodyGroup">The body group.</param>
+    /// <remarks>Credits to Gold KingZ for the original implementation.</remarks>
+    public static void SetBodyGroup(this CCSPlayerPawn playerPawn, string bodyGroup)
+    {
+        playerPawn.AcceptInput("SetBodyGroup", playerPawn, playerPawn, $"body,{bodyGroup}");
+    }
+
+    /// <summary>
+    /// Drops active weapon.
+    /// </summary>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    public static void DropActiveWeapon(this CCSPlayerPawn playerPawn)
+    {
+        if (playerPawn.WeaponServices?.ActiveWeapon.Value is not { } activeWeapon)
+            return;
+
+        playerPawn.ItemServices?.As<CCSPlayer_ItemServices>().DropActivePlayerWeapon(activeWeapon);
+    }
+
+    /// <summary>
+    /// Drops active weapon.
+    /// </summary>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    /// <param name="activeWeapon">The active weapon</param>
+    public static void DropActiveWeapon(this CCSPlayerPawn playerPawn, CBasePlayerWeapon activeWeapon)
+    {
+        playerPawn.ItemServices?.As<CCSPlayer_ItemServices>().DropActivePlayerWeapon(activeWeapon);
+    }
+
+    /// <summary>
+    /// Removes all weapons.
+    /// </summary>
+    /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
+    public static void RemoveAllWeapons(this CCSPlayerPawn playerPawn)
+    {
+        playerPawn.ItemServices?.As<CCSPlayer_ItemServices>().RemoveWeapons();
+    }
+
+    /// <summary>
     /// Finds a weapon by its designer name and forces the player to drop it.
     /// </summary>
     /// <param name="playerPawn">The <see cref="CCSPlayerPawn"/> instance.</param>
     /// <param name="designername">The designer name of the weapon to drop (e.g., "weapon_ak47").</param>
-    /// <remarks>This method works by temporarily making the target weapon the active weapon before dropping it.</remarks>
     public static void DropWeaponByDesignername(this CCSPlayerPawn playerPawn, string designername)
     {
         if (playerPawn.WeaponServices is not { } weaponServices)
@@ -329,11 +370,7 @@ public static class CCSPlayerPawnExtensions
             return;
 
         weaponServices.ActiveWeapon.Raw = weaponRaw;
-
-        if (weaponServices.ActiveWeapon.Value is null)
-            return;
-
-        playerPawn.ItemServices?.As<CCSPlayer_ItemServices>().DropActivePlayerWeapon(weaponServices.ActiveWeapon.Value);
+        playerPawn.DropActiveWeapon();
     }
 
     /// <summary>
@@ -404,7 +441,7 @@ public static class CCSPlayerPawnExtensions
 
         if (existedSlots.All(s => slots.Contains(s)))
         {
-            playerPawn.ItemServices?.As<CCSPlayer_ItemServices>().RemoveWeapons();
+            playerPawn.RemoveAllWeapons();
             return;
         }
 
@@ -444,7 +481,7 @@ public static class CCSPlayerPawnExtensions
                 if (activeWeapon?.IsValid is not true)
                     return;
 
-                playerPawn.ItemServices?.As<CCSPlayer_ItemServices>().DropActivePlayerWeapon(activeWeapon);
+                playerPawn.DropActiveWeapon(activeWeapon);
                 activeWeapon.AddEntityIOEvent("Kill", activeWeapon, delay: 0.1f);
             });
         }

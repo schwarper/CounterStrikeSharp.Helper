@@ -29,9 +29,9 @@ public static class VectorExtensions
     /// </summary>
     public static float DistanceSquared(this Vector vector, Vector other)
     {
-        return (vector.X - other.X) * (vector.X - other.X)
-             + (vector.Y - other.Y) * (vector.Y - other.Y)
-             + (vector.Z - other.Z) * (vector.Z - other.Z);
+        return ((vector.X - other.X) * (vector.X - other.X))
+             + ((vector.Y - other.Y) * (vector.Y - other.Y))
+             + ((vector.Z - other.Z) * (vector.Z - other.Z));
     }
 
     /// <summary>
@@ -48,11 +48,8 @@ public static class VectorExtensions
     /// </summary>
     public static Vector Normalized(this Vector v)
     {
-        float length = MathF.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
-        if (length == 0f)
-            return new Vector(0, 0, 0);
-
-        return new Vector(v.X / length, v.Y / length, v.Z / length);
+        float length = MathF.Sqrt((v.X * v.X) + (v.Y * v.Y) + (v.Z * v.Z));
+        return length == 0f ? new Vector(0, 0, 0) : new Vector(v.X / length, v.Y / length, v.Z / length);
     }
 
     /// <summary>
@@ -60,7 +57,7 @@ public static class VectorExtensions
     /// </summary>
     public static float LengthSquared(this Vector v)
     {
-        return v.X * v.X + v.Y * v.Y + v.Z * v.Z;
+        return (v.X * v.X) + (v.Y * v.Y) + (v.Z * v.Z);
     }
 
     /// <summary>
